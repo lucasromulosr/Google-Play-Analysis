@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AQUELA APP FODA</title>
+</head>
+<body>
+    <h1>aqui é o header1</h1>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <span><b>READ:</b></span><br>
+        <input type="text" name="your_name" placeholder="app_id">
+        <input type="submit" value="OK">
+    </form>
+    <br><br><br>
+    {{ text }}
+
+</body>
+</html>
