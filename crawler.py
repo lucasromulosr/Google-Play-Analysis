@@ -1,15 +1,13 @@
-import csv, sys
-import requests
+import csv, sys,requests,time,json
 import os.path
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-import time
-import json
 
-URL = 'https://play.google.com/store/apps/details?id=com.github.android'
+URL = ''
 URL_SUFIX = '&hl=en-US&showAllReviews=true'
 SCROLL_PAUSE_TIME = 2
+DIR = os.path.dirname(os.path.abspath(__file__))
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0"
@@ -17,7 +15,7 @@ headers = {
 
 def get_app_info():
     global URL
-    page = requests.get(URL+URL_SUFIX, headers=headers)
+    page = requests.get(URL, headers=headers)
     soup = BeautifulSoup(page.content, 'html.parser')
 
     # Informações do aplicativo
@@ -38,16 +36,16 @@ def get_app_info():
         'num_reviews': reviews
     }
 
-    with open('file.json', 'w') as file:
+    with open(DIR+'\\file.json', 'w') as file:
         file.write(json.dumps(json_dict))
 
 def get_comments():
     global URL
 
     # Abrindo a URL com o selenium e executando o geckodriver
-    driver = webdriver.Firefox(executable_path=os.getcwd() + "/geckodriver/geckodriver.exe")
+    driver = webdriver.Firefox(executable_path = DIR + "\\geckodriver\\geckodriver.exe")
     
-    driver.get(URL+URL_SUFIX)
+    driver.get(URL)
 
     # Tamanho do scroll
     last_height = driver.execute_script("return document.body.scrollHeight")
@@ -88,8 +86,8 @@ def get_comments():
     id_ = URL.split('=')[1].split('&')[0]
 
     # Extraindo as informações da página
-    with open('file_comement.json', 'w') as file:
-        for num, comment in enumerate(comment_section):
+    with open(DIR+'\\file_comement.json', 'w') as file:
+        for _, comment in enumerate(comment_section):
             nome       = comment.find("span", class_="X43Kjb").get_text()
             estrelas   = int(comment.find("div", class_="pf5lIe").div['aria-label'].split(' ')[1])
             comentario = comment.find("span", jsname="bN97Pc").get_text()
@@ -103,12 +101,12 @@ def get_comments():
                 'likes': likes
             }
 
-            file.write(json.dumps(json_dict))
+            file.write(json.dumps(json_dict)+"\n")
 
 
 def main(arg):
     global URL
-    URL = arg
+    URL = arg + URL_SUFIX
 
     get_app_info()
     get_comments()
