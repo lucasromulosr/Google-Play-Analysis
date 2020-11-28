@@ -1,8 +1,9 @@
-import csv, sys,requests,time,json
+import csv, sys,requests,time
 import os.path
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
+import time
 
 URL = ''
 URL_SUFIX = '&hl=en-US&showAllReviews=true'
@@ -24,31 +25,33 @@ def get_app_info():
     desenvolvedora  = soup.find("a", class_="hrTbp R8zArc").get_text()
     categoria       = soup.find("a", class_="hrTbp R8zArc", itemprop="genre").get_text()
     estrelas        = float(soup.find("div", class_="pf5lIe").div['aria-label'].split(' ')[1])
-    reviews         = float(soup.find("span", class_="AYi5wd TBRnV").span['aria-label'].split(' ')[0].replace(",","."))
+    reviews         = float(soup.find("span", class_="AYi5wd TBRnV").span['aria-label'].split(' ')[0].replace(",",""))
+    img             = soup.select('img[src^="https://play-lh.googleusercontent.com/"]')[0]['src']
+    img_data = requests.get(img).content
 
-    # Dicionário para conversão em json
-    json_dict = {
-        '_id': id_,
-        'name': nome,
-        'dev': desenvolvedora,
-        'catedory': categoria,
-        'stars': estrelas,
-        'num_reviews': reviews
-    }
+    # Criando a imagem no diretório "/crawled_data"
+    with open("crawled_data\\"+nome+"_image.jpg", "wb+") as f:
+        f.write(img_data)
 
-    with open(DIR+'\\file.json', 'w') as file:
-        file.write(json.dumps(json_dict))
+    # Escrevendo em um arquivo .csv para o aplicativo
+    with open(DIR+'\\crawled_data\\'+nome+'.csv', 'w') as file:
+        csv_writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+        csv_writer.writerow(['_id', 'name', 'dev', 'category', 'star', 'num_reviews'])
+        csv_writer.writerow([id_, nome, desenvolvedora, categoria, estrelas, reviews])
 
 def get_comments():
     global URL
 
     # Abrindo a URL com o selenium e executando o geckodriver
     driver = webdriver.Firefox(executable_path = DIR + "\\geckodriver\\geckodriver.exe")
-    
     driver.get(URL)
 
     # Tamanho do scroll
     last_height = driver.execute_script("return document.body.scrollHeight")
+    
+    # Tempo de scroll, 10min
+    current_milli_time = lambda: int(round(time.time() * 1000))
+    time_to_crawl = current_milli_time() + 600000
 
     while True:
         # Scroll até o fim da página
@@ -68,7 +71,7 @@ def get_comments():
             except NoSuchElementException as nsee:
                 print(nsee)
 
-            if SM_button != None:
+            if SM_button != None and current_milli_time() < time_to_crawl :
                 SM_button.click()
             else:
                 break
@@ -84,25 +87,22 @@ def get_comments():
     comment_section = soup.find_all("div", jsmodel="y8Aajc", jscontroller="H6eOGe")
 
     id_ = URL.split('=')[1].split('&')[0]
+    app_name = soup.find("h1", class_="AHFaub", itemprop="name").get_text()
+
+    with open(DIR+'\\crawled_data\\'+app_name+'_comements.csv', 'w') as file:
+        csv_writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+        csv_writer.writerow(['name', 'star', 'comments', 'likes', 'app'])
 
     # Extraindo as informações da página
-    with open(DIR+'\\file_comement.json', 'w') as file:
+    with open(DIR+'\\crawled_data\\'+app_name+'_comements.csv', 'a', encoding='utf-8') as file:
+        csv_writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
         for _, comment in enumerate(comment_section):
             nome       = comment.find("span", class_="X43Kjb").get_text()
             estrelas   = int(comment.find("div", class_="pf5lIe").div['aria-label'].split(' ')[1])
             comentario = comment.find("span", jsname="bN97Pc").get_text()
             likes      = int(comment.find("div", class_="jUL89d y92BAb").get_text())
             
-            json_dict = {
-                'app': id_,
-                'user': nome,
-                'stars': estrelas,
-                'text': comentario,
-                'likes': likes
-            }
-
-            file.write(json.dumps(json_dict)+"\n")
-
+            csv_writer.writerow([nome, estrelas, comentario, likes, app_name])
 
 def main(arg):
     global URL
@@ -113,19 +113,3 @@ def main(arg):
 
 if __name__ == '__main__':
     main(sys.argv[1])
-
-"""
-INFORMAÇÕES COLETADAS
-Aplicativos:
-    Nome
-    Desenvolvedora
-    Categoria
-    Estrelas
-    QtdReviews
-
-Resenhas:
-    Nome
-    Estrelas
-    Comentário
-    Joinha
-"""
