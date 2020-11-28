@@ -4,22 +4,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from forms import getAppID
 from .models import Application
 
-def home(request):
-    '''
-    if request.method == 'POST':
-        form = getAppID(request.POST)
+def home_view(request):
 
-        if form.is_valid():
-            text = request.POST.get('your_name', None)
-            return HttpResponseRedirect('/tests/')
+    context = { 
+        'all_apps': Application.objects.all()
+    }
 
-    else:
-    '''
-    form = getAppID(request.POST)
-    text = request.POST.get('your_name', None)
-
-    return render(request, 'home.html', {'form': form,
-                                         'text': text})
+    return render(request, 'index.html', context)
 
 
 def application_detail_view(request, app_name):
