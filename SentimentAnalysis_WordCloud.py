@@ -12,7 +12,6 @@ from PIL import Image
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator, get_single_color_func
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
-import multidict as multidict
 from wordcloud import WordCloud
 
 
@@ -68,25 +67,42 @@ def FormatString(string):
     return (" ".join(formatedArray))
 
 
-def ClearComments(instancia):
-    comments = []
-    for i in instancia:
-        #aux = RemoveStopWords(i)
-        aux = i
-        aux = aux.lower()
-        comments.append(FormatString(aux))
-    return comments
+def ClearComments(comments):
+    list_comments = []
+    for i in comments:
+        aux = i.lower()
+        aux = FormatString(aux)
+        list_comments.append(FormatString(aux))
+    return list_comments
 
 
-def GeneratorAnalysis(comentarios):
-    """Gera uma lista de 'lista de tuplas'. Cada lista de tuplas corresponde a análise de sentimento
-    de do comentário."""
+def GeneratorAnalysis(path, columns):
+    """Analisa cada comentário e retorna uma lista de lista (matriz) referente a pontuação dos sentimentos
+    de cada comentário. A ordem das listas são:
+        [0]Score-Positivo
+        [1]Score-Neutro
+        [2]Score-Negativo
+        [3]Score-Compound (Normalização dos scores positivo, neutro, negativo)
+        [4]Sentimento Predominante"""
+    comentarios = GetComments(path, columns)
     sid = SentimentIntensityAnalyzer()
-    comments = []
+    matriz_analise = [[] for _ in range(5)]
     for x in comentarios:
         aux = sid.polarity_scores(x)
-        comments.append(aux.items())
-    return comments
+        matriz_analise[0].append(aux['pos'])
+        matriz_analise[1].append(aux['neu'])
+        matriz_analise[2].append(aux['neg'])
+        matriz_analise[3].append(aux['compound'])
+
+        if 0.05 >= aux['compound'] >= -0.05:
+            matriz_analise[4].append('neutro')
+
+        elif aux['compound'] > 0.05:
+            matriz_analise[4].append('positivo')
+
+        else:
+            matriz_analise[4].append('negativo')
+    return matriz_analise
 
 
 def GetComments(path, columns):
@@ -96,16 +112,18 @@ def GetComments(path, columns):
     return comentarios
 
 
-def ImagemCloudWord(path, columns, imgexport, colorful_words):
+def ImagemCloudWord(path, columns, imgexport):
     """Essa função remove todas as stopword de todos os comentários. Após isso, ela quantifica
     quantas vezes cada keys-words aparece e imprime as mais frequêntes. Quanto mais frequênte
     a keyword, mais centralizado e maior na imagem ela aparece."""
+    colorful_words = GroupingWordSameFeeling(path, columns)
     summary = GetComments(path, columns)
     summary = ClearComments(summary)
     all_summary = " ".join(s for s in summary)
-    wordcloud = WordCloud(collocations=False,
-                          background_color="black",
+    wordcloud = WordCloud(collocations=False, contour_color="black",
+                          background_color="#e1e1e100", mode='RGBA',
                           width=1600, height=800).generate(all_summary)
+    # Se aparecer alguma palavra amarelka é porque deu pau no agrupamento de palavras de mesmo sentimento
     default_color = 'yellow'
     grouped_color_func = GroupedColorFunc(colorful_words, default_color)
     wordcloud.recolor(color_func=grouped_color_func)
@@ -116,19 +134,21 @@ def ImagemCloudWord(path, columns, imgexport, colorful_words):
     wordcloud.to_file(imgexport)
 
 
-def ImagemCloudWordCustommer(path, columns, imgimport, imgexport, colorful_words):
+def ImagemCloudWordCustommer(path, columns, imgimport, imgexport):
     """Variação da função ImagemCloudWord. Nessa função podemos especificar o formato da nuvem
     por meio de uma imagem em preto e branco. A parte em preto é a área ocupada pela nuvem e
     a parte em branco é a área que não deve ser sobreposta pelas keywords"""
+    colorful_words = GroupingWordSameFeeling(path, columns)
     summary = GetComments(path, columns)
     summary = ClearComments(summary)
     all_summary = " ".join(s for s in summary)
     img = np.array(Image.open(imgimport))
-    wordcloud = WordCloud(collocations=False,
-                          background_color="black",
+    wordcloud = WordCloud(collocations=False, contour_color="black",
+                          background_color="#e1e1e100", mode='RGBA',
                           width=1000, height=1000, max_words=2000,
                           mask=img, max_font_size=200,
                           min_font_size=1).generate(all_summary)
+    # Se aparecer alguma palavra amarelka é porque deu pau no agrupamento de palavras de mesmo sentimento
     default_color = 'yellow'
     grouped_color_func = GroupedColorFunc(colorful_words, default_color)
     wordcloud.recolor(color_func=grouped_color_func)
@@ -140,7 +160,9 @@ def ImagemCloudWordCustommer(path, columns, imgimport, imgexport, colorful_words
 
 
 def GroupingWordSameFeeling(path, columns):
-    """Agrupa as palavras de acordo com o sentimento que ela passa. """
+    """Remove as stopword e caracteres especiais. Em seguida, tokeniza todas as palavras existentes
+    nos comentários e analisa o sentimento atribuido a ela. As palavras com o mesmo sentimento são
+    agrupadas juntas no dicionário. 'red'-> Negativas, 'grey'->Neutras, 'green'->Positivas"""
     sid = SentimentIntensityAnalyzer()
     comments = GetComments(path, columns)
     comments = ClearComments(comments)
@@ -150,41 +172,45 @@ def GroupingWordSameFeeling(path, columns):
     color_words = {'red': [], 'green': [], 'grey': []}
     for i in word_tokens:
         aux = sid.polarity_scores(i)
-        aux1 = aux['pos']
-        aux2 = aux['neu']
-        aux3 = aux['neg']
-        if aux1 > aux2 and aux1 > aux3:
-            color_words['green'].append(i)
-        elif aux3 > aux1 and aux3 > aux2:
-            color_words['red'].append(i)
-        else:
+        if 0.05 >= aux['compound'] >= -0.05:
             color_words['grey'].append(i)
+        elif aux['compound'] > 0.05:
+            color_words['green'].append(i)
+        else:
+            color_words['red'].append(i)
     return color_words
 
 
-"""def getFrequencyDictForText(instancia):
-    fullTermsDict = multidict.MultiDict()
-    tmpDict = {}
+def Mean(lista):
+    aux = sum(lista)
+    aux = aux / len(lista)
+    return aux
 
-    for i in instancia:
-        for text in i.split(" "):
-            if re.match("a|the|an|the|to|in|for|of|or|by|with|is|on|that|be", text):
-                continue
-            val = tmpDict.get(text, 0)
-            tmpDict[text.lower()] = val + 1
-    for key in tmpDict:
-        fullTermsDict.add(key, tmpDict[key])
-    return fullTermsDict"""
 
-comentarios = GetComments('app_comments.json', 'text')
-comentarios = ClearComments(comentarios)
-colorful_words = GroupingWordSameFeeling('app_comments.json', 'text')
-ImagemCloudWordCustommer('app_comments.json', 'text', 'github.png', 'gitnew.png', colorful_words)
+def RealStars(n, start1, stop1, start2, stop2):
+    return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2
+
+
+def PlotTable(lista_pos, lista_neu, lista_neg, lista_senti):
+
+    mean_pos = Mean(lista_pos)
+    mean_neu = Mean(lista_neu)
+    mean_neg = Mean(lista_neg)
+    pos = lista_senti.count('positivo')
+    neu = lista_senti.count('neutro')
+    neg = lista_senti.count('negativo')
+    data = {
+        'Sentimento': ['Positivo', 'Neutro', 'Negativo'],
+        'Frequência': [pos, neu, neg],
+        'Porcentagem de Palavras': [mean_pos , mean_neu, mean_neg]
+    }
+    df = pd.DataFrame(data, columns=['Sentimento', 'Frequência', 'Porcentagem de Palavras'])
+    print(df)
+
+
 """"
-comentarios = GetComments('app_comments.json', 'text')
-analise = GeneratorAnalysis(comentarios)
-ImagemCloudWord('app_comments.json', 'text', 'git2.png')
-ImagemCloudWordCustommer('app_comments.json', 'text', 'github.png', 'git.png')
-comentarios = RemoveStopWords(comentarios)
-comentarios = Stemming(comentarios)
-print(comentarios)"""
+matriz = GeneratorAnalysis('app_comments.json', 'text')
+PlotTable(matriz[0], matriz[1], matriz[2], matriz[4])
+ImagemCloudWord('app_comments.json', 'text', 'git222.png')
+ImagemCloudWordCustommer('app_comments.json', 'text', 'bw_github.png', 'git111.png')
+"""
