@@ -26,4 +26,4 @@ def application_detail_view(request, app_name):
     context = {
         'app': Application.objects.get(name=app_name)
     }
-    return render(request, "gpapp/application/index.html", context)
+    return render(request, "app/application/index.html", context)

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}<title>Trabalho de BD</title>{% endblock %}
+
+{% block content %}
+<div class="central-area">
+    <main class="main">
+        
+        <div class="main-content">
+            <ul class="app-list">
+                {% for app in all_apps %}
+                <li class="app-name"><a href="/{{app.name}}">{{app.name|capfirst}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </main>
+
+    {% include "footer.html" %}
+
+    {% block footer %}
+    {% endblock footer%}
+</div>
+{% endblock content %}
