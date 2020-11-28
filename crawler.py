@@ -5,7 +5,6 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 import time
 
-URL = ''
 URL_SUFIX = '&hl=en-US&showAllReviews=true'
 SCROLL_PAUSE_TIME = 2
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,8 +13,7 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0"
 }
 
-def get_app_info():
-    global URL
+def get_app_info(URL):
     page = requests.get(URL, headers=headers)
     soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -32,15 +30,17 @@ def get_app_info():
     # Criando a imagem no diretório "/crawled_data"
     with open("crawled_data\\"+nome+"_image.jpg", "wb+") as f:
         f.write(img_data)
+    
+    yield {
+        '_id': id_,
+        'name': nome,
+        'dev': desenvolvedora,
+        'category': categoria,
+        'star': estrelas,
+        'num_reviews': reviews
+    }
 
-    # Escrevendo em um arquivo .csv para o aplicativo
-    with open(DIR+'\\crawled_data\\'+nome+'.csv', 'w') as file:
-        csv_writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-        csv_writer.writerow(['_id', 'name', 'dev', 'category', 'star', 'num_reviews'])
-        csv_writer.writerow([id_, nome, desenvolvedora, categoria, estrelas, reviews])
-
-def get_comments():
-    global URL
+def get_comments(URL):
 
     # Abrindo a URL com o selenium e executando o geckodriver
     driver = webdriver.Firefox(executable_path = DIR + "\\geckodriver\\geckodriver.exe")
@@ -51,7 +51,7 @@ def get_comments():
     
     # Tempo de scroll, 10min
     current_milli_time = lambda: int(round(time.time() * 1000))
-    time_to_crawl = current_milli_time() + 600000
+    time_to_crawl = current_milli_time() + 10000
 
     while True:
         # Scroll até o fim da página
@@ -89,27 +89,16 @@ def get_comments():
     id_ = URL.split('=')[1].split('&')[0]
     app_name = soup.find("h1", class_="AHFaub", itemprop="name").get_text()
 
-    with open(DIR+'\\crawled_data\\'+app_name+'_comements.csv', 'w') as file:
-        csv_writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-        csv_writer.writerow(['name', 'star', 'comments', 'likes', 'app'])
-
-    # Extraindo as informações da página
-    with open(DIR+'\\crawled_data\\'+app_name+'_comements.csv', 'a', encoding='utf-8') as file:
-        csv_writer = csv.writer(file, delimiter=';', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-        for _, comment in enumerate(comment_section):
-            nome       = comment.find("span", class_="X43Kjb").get_text()
-            estrelas   = int(comment.find("div", class_="pf5lIe").div['aria-label'].split(' ')[1])
-            comentario = comment.find("span", jsname="bN97Pc").get_text()
-            likes      = int(comment.find("div", class_="jUL89d y92BAb").get_text())
-            
-            csv_writer.writerow([nome, estrelas, comentario, likes, app_name])
-
-def main(arg):
-    global URL
-    URL = arg + URL_SUFIX
-
-    get_app_info()
-    get_comments()
-
-if __name__ == '__main__':
-    main(sys.argv[1])
+    for comment in comment_section:
+        nome       = comment.find("span", class_="X43Kjb").get_text()
+        estrelas   = int(comment.find("div", class_="pf5lIe").div['aria-label'].split(' ')[1])
+        comentario = comment.find("span", jsname="bN97Pc").get_text()
+        likes      = int(comment.find("div", class_="jUL89d y92BAb").get_text())
+        
+        yield {
+            'name': nome,
+            'star': estrelas,
+            'comments': comentario,
+            'likes': likes,
+            'app': app_name
+        }
