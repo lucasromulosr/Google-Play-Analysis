@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 
 from forms import getAppID
+from .models import Application
 
 def home(request):
     '''
@@ -21,6 +22,8 @@ def home(request):
                                          'text': text})
 
 
-def tests(request):
-
-    return HttpResponse('---suave')
+def application_detail_view(request, app_name):
+    context = {
+        'app': Application.objects.get(name=app_name)
+    }
+    return render(request, "gpapp/application/index.html", context)
