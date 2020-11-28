@@ -8,18 +8,22 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 import sys
+from crawler import *
 
 def main():
 
-    # argumento é o id do aplicativo
-    # exmplo: com.github.android
-    arg = None
     try:
+        # argumento é o link do aplicativo
+        # exmplo: https://play.google.com/store/apps/details?id=com.github.android
+        
         arg = sys.argv[1]
+        URL = arg + URL_SUFIX
+        
+        # generators contendo a as informações do app e commentários
+        app_info = get_app_info(URL)
+        comments = get_comments(URL)
+
     except IndexError:
-        print('----------------\n'
-              'faltou argumento\n'
-              '----------------')
         sys.exit()
 
     ### pipeline
