@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}<title>{{app.name|capfirst}} - Review</title>{% endblock %}
+
+{% block content %}
+<div class="central-area">
+    <main class="main-apps">
+        <div class="app-info">
+            <div class="foto">Foto</div>
+            <div class="app-information">
+                <p class="app-name">Nome: {{app.name}}</p>
+                <p class="app-cat">Categoria: {{app.category}}</p>
+                <p class="app-reviews">Reviews: {{app.num_reviews}}</p>
+            </div>
+            <div class="avaliations">
+                <p>Avaliação F.: {{app.star}} Estrelas</p>
+                <p>Avaliação R.:</p>
+            </div>
+        </div>
+
+        <div class="word-cloud">
+            Nuvem de palavras
+        </div>
+
+        <div class="app-details">
+            Tabela de detalhes
+        </div>
+    </main>
+
+    {% include "footer.html" %}
+
+    {% block footer %}
+    {% endblock footer%}
+</div>
+{% endblock content %}
