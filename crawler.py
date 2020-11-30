@@ -5,6 +5,8 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 import time
 
+from Google_Play_Analysis.settings import BASE_DIR
+
 URL_SUFIX = '&hl=en-US&showAllReviews=true'
 SCROLL_PAUSE_TIME = 2
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,9 +29,10 @@ def get_app_info(URL):
     img             = soup.select('img[src^="https://play-lh.googleusercontent.com/"]')[0]['src']
     img_data = requests.get(img).content
 
-    # Criando a imagem no diretório "/crawled_data"
-    with open("crawled_data\\"+nome+"_image.jpg", "wb+") as f:
-        f.write(img_data)
+    # Criando a imagem no diretório images
+    img_path = 'images/' + id_ + '.jpg'
+    with open(img_path, 'wb+') as file:
+        file.write(img_data)
     
     yield {
         '_id': id_,
@@ -37,19 +40,24 @@ def get_app_info(URL):
         'dev': desenvolvedora,
         'category': categoria,
         'star': estrelas,
-        'num_reviews': reviews
+        'num_reviews': reviews,
+        'compound': None,
+        'img_path': img_path,
+        'cloud_path': None
     }
 
 def get_comments(URL):
 
     # Abrindo a URL com o selenium e executando o geckodriver
-    driver = webdriver.Firefox(executable_path = DIR + "\\geckodriver\\geckodriver.exe")
+    # selecionar geckodriver compativel com o sistema
+    # driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_win.exe'))
+    driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_linux'))
     driver.get(URL)
 
     # Tamanho do scroll
     last_height = driver.execute_script("return document.body.scrollHeight")
     
-    # Tempo de scroll, 10min
+    # Tempo de scroll, 10 s
     current_milli_time = lambda: int(round(time.time() * 1000))
     time_to_crawl = current_milli_time() + 10000
 
@@ -86,8 +94,8 @@ def get_comments(URL):
     # Separando somente a seção de comentários do html
     comment_section = soup.find_all("div", jsmodel="y8Aajc", jscontroller="H6eOGe")
 
-    id_ = URL.split('=')[1].split('&')[0]
-    app_name = soup.find("h1", class_="AHFaub", itemprop="name").get_text()
+    app_id = URL.split('=')[1].split('&')[0]
+    # app_name = soup.find("h1", class_="AHFaub", itemprop="name").get_text()
 
     for comment in comment_section:
         nome       = comment.find("span", class_="X43Kjb").get_text()
@@ -100,5 +108,5 @@ def get_comments(URL):
             'star': estrelas,
             'comments': comentario,
             'likes': likes,
-            'app': app_name
+            'app': app_id
         }
