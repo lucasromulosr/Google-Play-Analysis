@@ -9,7 +9,7 @@
         <div class="main-content">
             <ul class="app-list">
                 {% for app in all_apps %}
-                <li class="app-name"><a href="/{{app.name}}">{{app.name|capfirst}}</a></li>
+                <li class="app-name"><a href="/{{app.id}}">{{app.name|capfirst}}</a></li>
                 {% endfor %}
             </ul>
         </div>

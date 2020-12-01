@@ -116,7 +116,7 @@ def ImagemCloudWord(APP, COMMENTS):
     quantas vezes cada keys-words aparece e imprime as mais frequêntes. Quanto mais frequênte
     a keyword, mais centralizado e maior na imagem ela aparece."""
     # caminho da imagem
-    app_id = APP['_id']
+    app_id = APP['id']
     cloud_path = 'images/cloud_' + app_id + '.png'
     APP['cloud_path'] = cloud_path
 

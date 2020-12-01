@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block title %}<title>{{app.name|capfirst}} - Review</title>{% endblock %}
 
 {% block content %}
 <div class="central-area">
     <main class="main-apps">
         <div class="app-info">
-            <div class="foto">Foto</div>
+            <div class="foto"><img src="{% static app.img_path %}" alt="{{app.name}} pic"></div>
             <div class="app-information">
                 <p class="app-name">Nome: {{app.name}}</p>
                 <p class="app-cat">Categoria: {{app.category}}</p>
@@ -14,13 +14,11 @@
             </div>
             <div class="avaliations">
                 <p>Avaliação F.: {{app.star}} Estrelas</p>
-                <p>Avaliação R.:</p>
+                <p>Avaliação R.: {{app.compound|floatformat:1}} Estrelas</p>
             </div>
         </div>
 
-        <div class="word-cloud">
-            Nuvem de palavras
-        </div>
+        <div class="word-cloud"><img src="{% static app.cloud_path %}" alt="{{app.name}} word cloud"></div>
 
         <div class="app-details">
             Tabela de detalhes

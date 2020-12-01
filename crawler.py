@@ -35,7 +35,7 @@ def get_app_info(URL):
         file.write(img_data)
     
     yield {
-        '_id': id_,
+        'id': id_,
         'name': nome,
         'dev': desenvolvedora,
         'category': categoria,
@@ -50,8 +50,8 @@ def get_comments(URL):
 
     # Abrindo a URL com o selenium e executando o geckodriver
     # selecionar geckodriver compativel com o sistema
-    # driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_win.exe'))
-    driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_linux'))
+    driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_win.exe'))
+    # driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_linux'))
     driver.get(URL)
 
     # Tamanho do scroll

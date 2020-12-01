@@ -22,6 +22,6 @@ from app.views import application_detail_view, home_view
 urlpatterns = [
     path('', home_view, name='home'),
     path('admin/', admin.site.urls),
-    path('<str:app_name>', application_detail_view, name='apps'),
+    path('<str:app_id>', application_detail_view, name='apps'),
 ]
 

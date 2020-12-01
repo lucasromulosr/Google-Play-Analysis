@@ -20,14 +20,19 @@ def create(application, comments): #adicionar no banco
 
 def read(app_id):   #app e comments
     try:
-        return APPLICATIONS.find_one({'_id': app_id}), COMMENTS.find({'app': app_id})
+        return APPLICATIONS.find_one({'id': app_id}), COMMENTS.find({'app': app_id})
     except:
         print('deu ruim 2')
 
+def read_all_apps():   #all apps
+    try:
+        return APPLICATIONS.find()
+    except:
+        print('deu ruim 2.1')
 
 def read_app(app_id):    #app
     try:
-        return APPLICATIONS.find_one({'_id': app_id})
+        return APPLICATIONS.find_one({'id': app_id})
     except:
         print('deu ruim 3')
 
