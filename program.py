@@ -1,4 +1,5 @@
 import sys
+import pymongo
 from crawler import URL_SUFIX, get_app_info, get_comments
 from database import create
 from analysis import analysis
@@ -8,6 +9,7 @@ from analysis import analysis
 # para criar a pasta de imagens ser criada,
 # senao a aplicacao nao carrega as imagens
 # ---------------------------------------------------
+
 
 # povoar o banco de dados
 def main():
@@ -28,7 +30,11 @@ def main():
     analysis(app_info, comments)
 
     # insere no banco
-    create(app_info, comments)
+    # noinspection PyUnresolvedReferences
+    try:
+        create(app_info, comments)
+    except pymongo.errors.DuplicateKeyError:
+        sys.exit('THAT APPLICATION ALREADY EXISTS IN THE DB')
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@
             <div class="app-information">
                 <p class="app-name">Nome: {{app.name}}</p>
                 <p class="app-cat">Categoria: {{app.category}}</p>
-                <p class="app-reviews">Reviews: {{app.num_reviews}}</p>
+                <p class="app-reviews">Reviews: {{app.num_reviews|floatformat:0}}</p>
             </div>
             <div class="avaliations">
                 <p>Avaliação F.: {{app.star}} Estrelas</p>

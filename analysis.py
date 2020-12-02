@@ -47,33 +47,32 @@ class GroupedColorFunc(object):
         return self.get_color_func(word)(word, **kwargs)
 
 
-def RemoveStopWords(instancia):
+def remove_stop_words(instancia):
     stopwords = set(nltk.corpus.stopwords.words('english'))
     palavras = [i for i in instancia.split() if not i in stopwords]
     return (" ".join(palavras))
 
 
-def FormatString(string):
+def format_string(string):
     formatedArray = re.findall('[a-zA-Z]+', string)
     return (" ".join(formatedArray))
 
 
-def ClearComments(comments):
+def clear_comments(comments):
     list_comments = []
     for i in comments:
         aux = i.lower()
-        aux = FormatString(aux)
-        list_comments.append(FormatString(aux))
+        aux = format_string(aux)
+        list_comments.append(format_string(aux))
     return list_comments
 
 
-def GeneratorAnalysis(APP, COMMENTS):
+def generator_analysis(app, comments):
     """Analisa os comentários da aplicação e retorna a avaliação real baseado no que
     está escrito nos comentários."""
-    comentarios = COMMENTS
     sid = SentimentIntensityAnalyzer()
     somatoria_compound = 0
-    for x in comentarios:
+    for x in comments:
         aux = sid.polarity_scores(x['comments'])
         x['compound'] = aux['compound']
         somatoria_compound += x['compound']
@@ -87,24 +86,24 @@ def GeneratorAnalysis(APP, COMMENTS):
         else:
             x['final'] = 'negativo'
 
-        x['nota_final'] = RealStars(x['compound'], -1, 1, 1, 5)
+        x['nota_final'] = real_stars(x['compound'], -1, 1, 1, 5)
 
-    media_compound = somatoria_compound / len(comentarios)
-    APP['compound'] = RealStars(media_compound, -1, 1, 1, 5)
+    media_compound = somatoria_compound / len(comments)
+    app['compound'] = real_stars(media_compound, -1, 1, 1, 5)
 
 
-def ImagemCloudWord(APP, COMMENTS):
+def image_cloud_word(app, comments):
     """Essa função remove todas as stopword de todos os comentários. Após isso, ela quantifica
     quantas vezes cada keys-words aparece e imprime as mais frequêntes. Quanto mais frequênte
     a keyword, mais centralizado e maior na imagem ela aparece."""
     # caminho da imagem
-    app_id = APP['id']
+    app_id = app['id']
     cloud_path = 'images/cloud_' + app_id + '.png'
-    APP['cloud_path'] = cloud_path
+    app['cloud_path'] = cloud_path
 
-    colorful_words = GroupingWordSameFeeling(COMMENTS)
-    summary = get_comments(COMMENTS)
-    summary = ClearComments(summary)
+    colorful_words = grouping_word_same_feeling(comments)
+    summary = list(get_comments(comments))
+    summary = clear_comments(summary)
     all_summary = " ".join(s for s in summary)
 
     wordcloud = WordCloud(collocations=False, contour_color="black",
@@ -122,13 +121,13 @@ def ImagemCloudWord(APP, COMMENTS):
     wordcloud.to_file('app/static/' + cloud_path)
 
 
-def GroupingWordSameFeeling(COMMENTS):
+def grouping_word_same_feeling(comments):
     """Remove as stopword e caracteres especiais. Em seguida, tokeniza todas as palavras existentes
     nos comentários e analisa o sentimento atribuido a ela. As palavras com o mesmo sentimento são
     agrupadas juntas no dicionário. 'red'-> Negativas, 'grey'->Neutras, 'green'->Positivas"""
     sid = SentimentIntensityAnalyzer()
-    comments = get_comments(COMMENTS)
-    comments = ClearComments(comments)
+    comments = list(get_comments(comments))
+    comments = clear_comments(comments)
     word_tokens = []
     for i in comments:
         word_tokens.extend(word_tokenize(i))
@@ -144,23 +143,27 @@ def GroupingWordSameFeeling(COMMENTS):
     return color_words
 
 
-def Mean(lista):
+def mean(lista):
     aux = sum(lista)
     aux = aux / len(lista)
     return aux
 
 
-def RealStars(n, start1, stop1, start2, stop2):
+def real_stars(n, start1, stop1, start2, stop2):
     return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2
 
-
-def get_comments(COMMENTS):
+'''
+def get_comments(comments_list):
     comments = []
-    for comm in COMMENTS:
+    for comm in comments_list:
         comments.append(comm['comments'])
     return comments
+'''
+def get_comments(comments):
+    for comm in comments:
+        yield comm['comments']
 
 
-def analysis(APP, COMMENTS):
-    GeneratorAnalysis(APP, COMMENTS)
-    ImagemCloudWord(APP, COMMENTS)
+def analysis(app, comments):
+    generator_analysis(app, comments)
+    image_cloud_word(app, comments)

@@ -1,6 +1,7 @@
 import sys
 from pymongo import MongoClient
 
+
 # estabelecendo conexao
 client = MongoClient()
 # selecionando o banco de dados
@@ -16,7 +17,7 @@ def create(application, comments):
         APPLICATIONS.insert_one(application)
         COMMENTS.insert_many(comments)
     except TypeError:
-        sys.exit('ERROR')
+        sys.exit('DATA TYPE ERROR')
 
 
 # busca uma aplicacao e seus comentarios no banco
