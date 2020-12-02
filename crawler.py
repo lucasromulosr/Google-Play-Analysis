@@ -65,9 +65,9 @@ def get_comments(URL):
     # Tamanho do scroll
     last_height = driver.execute_script("return document.body.scrollHeight")
     
-    # Tempo de scroll, 10 s
+    # Tempo de scroll, 10 min
     current_milli_time = lambda: int(round(time.time() * 1000))
-    time_to_crawl = current_milli_time() + 10000
+    time_to_crawl = current_milli_time() + 600000
 
     while True:
         # Scroll até o fim da página
