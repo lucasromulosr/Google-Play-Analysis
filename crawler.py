@@ -1,9 +1,8 @@
-import csv, sys,requests,time
+import requests, time
 import os.path
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-import time
 
 from Google_Play_Analysis.settings import BASE_DIR
 
@@ -29,12 +28,18 @@ def get_app_info(URL):
     img             = soup.select('img[src^="https://play-lh.googleusercontent.com/"]')[0]['src']
     img_data = requests.get(img).content
 
+    # Cria diretorio das imagens
+    if not os.path.exists('app/static/images'):
+        os.mkdir('./app/static')
+        os.mkdir('./app/static/images')
+
     # Criando a imagem no diretório images
     img_path = 'images/' + id_ + '.jpg'
-    with open(img_path, 'wb+') as file:
+    with open('app/static/' + img_path, 'wb+') as file:
         file.write(img_data)
     
     yield {
+        '_id': id_,
         'id': id_,
         'name': nome,
         'dev': desenvolvedora,
@@ -50,8 +55,8 @@ def get_comments(URL):
 
     # Abrindo a URL com o selenium e executando o geckodriver
     # selecionar geckodriver compativel com o sistema
-    driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_win.exe'))
-    # driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_linux'))
+    # driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_win.exe'))
+    driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_linux'))
     driver.get(URL)
 
     # Tamanho do scroll

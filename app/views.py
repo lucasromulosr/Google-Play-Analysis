@@ -1,8 +1,4 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-
-from forms import getAppID
-from .models import Application
 from database import read_all_apps, read_app
 
 def home_view(request):

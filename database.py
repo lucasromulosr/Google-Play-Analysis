@@ -1,44 +1,39 @@
 import sys
-
 from pymongo import MongoClient
 
-# estabelecendo conexão
-# e acessando o BD
+# estabelecendo conexao
 client = MongoClient()
+# selecionando o banco de dados
 DB = client.test
+# selecionando as colecoes
 APPLICATIONS = DB.applications
 COMMENTS = DB.comments
 
 
-def create(application, comments): #adicionar no banco
+# insere aplicacao e seus comentarios no banco
+def create(application, comments):
     try:
         APPLICATIONS.insert_one(application)
         COMMENTS.insert_many(comments)
-    except:
-        print('deu ruim')
+    except TypeError:
+        sys.exit('ERROR')
 
 
-def read(app_id):   #app e comments
-    try:
-        return APPLICATIONS.find_one({'id': app_id}), COMMENTS.find({'app': app_id})
-    except:
-        print('deu ruim 2')
-
-def read_all_apps():   #all apps
-    try:
-        return APPLICATIONS.find()
-    except:
-        print('deu ruim 2.1')
-
-def read_app(app_id):    #app
-    try:
-        return APPLICATIONS.find_one({'id': app_id})
-    except:
-        print('deu ruim 3')
+# busca uma aplicacao e seus comentarios no banco
+def read(app_id):
+    return APPLICATIONS.find_one({'_id': app_id}), COMMENTS.find({'app': app_id})
 
 
-def read_comments(app_id):   #comments
-    try:
-        return COMMENTS.find({'app': app_id})
-    except:
-        print('deu ruim 4')
+# busca todas as aplicacoes no banco
+def read_all_apps():
+    return APPLICATIONS.find()
+
+
+# busca uma aplicacao expecifica no banco
+def read_app(app_id):
+    return APPLICATIONS.find_one({'_id': app_id})
+
+
+# busca os comentarios de uma aplicacao expecifica
+def read_comments(app_id):
+    return COMMENTS.find({'app': app_id})

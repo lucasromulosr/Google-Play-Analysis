@@ -1,17 +1,10 @@
-import pandas as pd
 import nltk
 import re
-import numpy as np
 import matplotlib.pyplot as plt
-from PIL import Image
-from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator, get_single_color_func
+from wordcloud import WordCloud, get_single_color_func
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
-from wordcloud import WordCloud
 
-#####
-# from database import COMMENTS
-#####
 
 class SimpleGroupedColorFunc(object):
     """Cria um objeto de função de cor que atribua cores EXATAS
@@ -75,13 +68,8 @@ def ClearComments(comments):
 
 
 def GeneratorAnalysis(APP, COMMENTS):
-    """Analisa cada comentário e retorna uma lista de lista (matriz) referente a pontuação dos sentimentos
-    de cada comentário. A ordem das listas são:
-        [0]Score-Positivo
-        [1]Score-Neutro
-        [2]Score-Negativo
-        [3]Score-Compound (Normalização dos scores positivo, neutro, negativo)
-        [4]Sentimento Predominante"""
+    """Analisa os comentários da aplicação e retorna a avaliação real baseado no que
+    está escrito nos comentários."""
     comentarios = COMMENTS
     sid = SentimentIntensityAnalyzer()
     somatoria_compound = 0
@@ -89,12 +77,6 @@ def GeneratorAnalysis(APP, COMMENTS):
         aux = sid.polarity_scores(x['comments'])
         x['compound'] = aux['compound']
         somatoria_compound += x['compound']
-
-        '''
-        x['pos'] = aux['pos']
-        x['neu'] = aux['neu']
-        x['neg'] = aux['neg']       
-        '''
 
         if 0.05 >= aux['compound'] >= -0.05:
             x['final'] = 'neutro'
@@ -137,33 +119,8 @@ def ImagemCloudWord(APP, COMMENTS):
     ax.imshow(wordcloud, interpolation='bilinear')
     ax.set_axis_off()
     plt.imshow(wordcloud)
-    wordcloud.to_file(cloud_path)
+    wordcloud.to_file('app/static/' + cloud_path)
 
-'''
-def ImagemCloudWordCustommer(imgimport, imgexport):
-    """Variação da função ImagemCloudWord. Nessa função podemos especificar o formato da nuvem
-    por meio de uma imagem em preto e branco. A parte em preto é a área ocupada pela nuvem e
-    a parte em branco é a área que não deve ser sobreposta pelas keywords"""
-    colorful_words = GroupingWordSameFeeling()
-    summary = None #comentarios
-    summary = ClearComments(summary)
-    all_summary = " ".join(s for s in summary)
-    img = np.array(Image.open(imgimport))
-    wordcloud = WordCloud(collocations=False, contour_color="black",
-                          background_color="#e1e1e100", mode='RGBA',
-                          width=1000, height=1000, max_words=2000,
-                          mask=img, max_font_size=200,
-                          min_font_size=1).generate(all_summary)
-    # Se aparecer alguma palavra amarelka é porque deu pau no agrupamento de palavras de mesmo sentimento
-    default_color = 'yellow'
-    grouped_color_func = GroupedColorFunc(colorful_words, default_color)
-    wordcloud.recolor(color_func=grouped_color_func)
-    fig, ax = plt.subplots(figsize=(10, 10))
-    ax.imshow(wordcloud, interpolation='bilinear')
-    ax.set_axis_off()
-    plt.imshow(wordcloud)
-    wordcloud.to_file(imgexport)
-'''
 
 def GroupingWordSameFeeling(COMMENTS):
     """Remove as stopword e caracteres especiais. Em seguida, tokeniza todas as palavras existentes
