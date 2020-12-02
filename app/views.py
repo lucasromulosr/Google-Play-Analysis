@@ -16,4 +16,3 @@ def application_detail_view(request, app_id):
         'comments': comments
     }
     return render(request, "app/application/index.html", context)
-
