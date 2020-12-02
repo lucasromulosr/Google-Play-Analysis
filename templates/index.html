@@ -7,6 +7,7 @@
     <main class="main">
         
         <div class="main-content">
+            <p class="page-title">APLICATIVOS PARA ANÁLISE:</p >
             <ul class="app-list">
                 {% for app in all_apps %}
                 <li class="app-name"><a href="/{{app.id}}">{{app.name|capfirst}}</a></li>

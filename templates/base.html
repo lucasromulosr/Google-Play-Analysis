@@ -35,29 +35,30 @@
             }
 
             .main-content {
-                /* background: blue; */
                 grid-column: 1/4;
                 grid-row: 2/3;
-            }
-
-            .main-content .app-list li {
-                display: inline-block;
-                width: 150px;
                 text-align: center;
             }
 
-            .main-content .app-list li a {
-                background: #1d1e20;
-                text-decoration: none;
-                color: white;
+            .main-content .app-list li {
+                width: 200px;
+                margin: auto;
 
+            }
+
+            .main-content .app-list li a {
+                border-top-style: none;
+                border-right-style: none;
+                border-bottom-style: solid;
+                border-left-style: none;
+                text-decoration: none;
+                color: #1d1e1e;
                 display: block;
-                border-radius: 20px;
             }
 
             .main-content .app-list li a:hover {
                 background: rgb(49, 49, 49);
-                color: #1d1e1e;
+                color: white;
             }
 
             .main-apps {
@@ -134,8 +135,8 @@
             }
 
             .word-cloud img {
-                width: 420px;
-                height: 420px;
+                width: 100%;
+                height: 100%;
             }
         </style>
     </head>
