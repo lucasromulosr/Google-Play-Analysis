@@ -1,19 +1,20 @@
-import csv, sys,requests,time
 import os.path
+import requests
+import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-import time
-
 from Google_Play_Analysis.settings import BASE_DIR
 
+
 URL_SUFIX = '&hl=en-US&showAllReviews=true'
-SCROLL_PAUSE_TIME = 2
+SCROLL_PAUSE_TIME = 3
 DIR = os.path.dirname(os.path.abspath(__file__))
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0"
 }
+
 
 def get_app_info(URL):
     page = requests.get(URL, headers=headers)
@@ -25,16 +26,22 @@ def get_app_info(URL):
     desenvolvedora  = soup.find("a", class_="hrTbp R8zArc").get_text()
     categoria       = soup.find("a", class_="hrTbp R8zArc", itemprop="genre").get_text()
     estrelas        = float(soup.find("div", class_="pf5lIe").div['aria-label'].split(' ')[1])
-    reviews         = float(soup.find("span", class_="AYi5wd TBRnV").span['aria-label'].split(' ')[0].replace(",",""))
+    reviews         = float(soup.find("span", class_="AYi5wd TBRnV").span['aria-label'].split(' ')[0].replace(",", ""))
     img             = soup.select('img[src^="https://play-lh.googleusercontent.com/"]')[0]['src']
     img_data = requests.get(img).content
 
+    # Cria diretorio das imagens
+    if not os.path.exists('app/static/images'):
+        os.mkdir('./app/static')
+        os.mkdir('./app/static/images')
+
     # Criando a imagem no diretório images
     img_path = 'images/' + id_ + '.jpg'
-    with open(img_path, 'wb+') as file:
+    with open('app/static/' + img_path, 'wb+') as file:
         file.write(img_data)
     
     yield {
+        '_id': id_,
         'id': id_,
         'name': nome,
         'dev': desenvolvedora,
@@ -46,12 +53,13 @@ def get_app_info(URL):
         'cloud_path': None
     }
 
+
 def get_comments(URL):
 
     # Abrindo a URL com o selenium e executando o geckodriver
     # selecionar geckodriver compativel com o sistema
-    driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_win.exe'))
-    # driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_linux'))
+    # driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_win.exe'))
+    driver = webdriver.Firefox(executable_path=os.path.join(BASE_DIR, 'geckodriver/geckodriver_linux'))
     driver.get(URL)
 
     # Tamanho do scroll
@@ -79,7 +87,7 @@ def get_comments(URL):
             except NoSuchElementException as nsee:
                 print(nsee)
 
-            if SM_button != None and current_milli_time() < time_to_crawl :
+            if SM_button is not None and current_milli_time() < time_to_crawl:
                 SM_button.click()
             else:
                 break

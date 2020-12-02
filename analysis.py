@@ -1,17 +1,10 @@
-import pandas as pd
 import nltk
 import re
-import numpy as np
 import matplotlib.pyplot as plt
-from PIL import Image
-from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator, get_single_color_func
+from wordcloud import WordCloud, get_single_color_func
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize
-from wordcloud import WordCloud
 
-#####
-# from database import COMMENTS
-#####
 
 class SimpleGroupedColorFunc(object):
     """Cria um objeto de função de cor que atribua cores EXATAS
@@ -54,47 +47,35 @@ class GroupedColorFunc(object):
         return self.get_color_func(word)(word, **kwargs)
 
 
-def RemoveStopWords(instancia):
+def remove_stop_words(instancia):
     stopwords = set(nltk.corpus.stopwords.words('english'))
     palavras = [i for i in instancia.split() if not i in stopwords]
     return (" ".join(palavras))
 
 
-def FormatString(string):
+def format_string(string):
     formatedArray = re.findall('[a-zA-Z]+', string)
     return (" ".join(formatedArray))
 
 
-def ClearComments(comments):
+def clear_comments(comments):
     list_comments = []
     for i in comments:
         aux = i.lower()
-        aux = FormatString(aux)
-        list_comments.append(FormatString(aux))
+        aux = format_string(aux)
+        list_comments.append(format_string(aux))
     return list_comments
 
 
-def GeneratorAnalysis(APP, COMMENTS):
-    """Analisa cada comentário e retorna uma lista de lista (matriz) referente a pontuação dos sentimentos
-    de cada comentário. A ordem das listas são:
-        [0]Score-Positivo
-        [1]Score-Neutro
-        [2]Score-Negativo
-        [3]Score-Compound (Normalização dos scores positivo, neutro, negativo)
-        [4]Sentimento Predominante"""
-    comentarios = COMMENTS
+def generator_analysis(app, comments):
+    """Analisa os comentários da aplicação e retorna a avaliação real baseado no que
+    está escrito nos comentários."""
     sid = SentimentIntensityAnalyzer()
     somatoria_compound = 0
-    for x in comentarios:
+    for x in comments:
         aux = sid.polarity_scores(x['comments'])
         x['compound'] = aux['compound']
         somatoria_compound += x['compound']
-
-        '''
-        x['pos'] = aux['pos']
-        x['neu'] = aux['neu']
-        x['neg'] = aux['neg']       
-        '''
 
         if 0.05 >= aux['compound'] >= -0.05:
             x['final'] = 'neutro'
@@ -105,24 +86,24 @@ def GeneratorAnalysis(APP, COMMENTS):
         else:
             x['final'] = 'negativo'
 
-        x['nota_final'] = RealStars(x['compound'], -1, 1, 1, 5)
+        x['nota_final'] = real_stars(x['compound'], -1, 1, 1, 5)
 
-    media_compound = somatoria_compound / len(comentarios)
-    APP['compound'] = RealStars(media_compound, -1, 1, 1, 5)
+    media_compound = somatoria_compound / len(comments)
+    app['compound'] = real_stars(media_compound, -1, 1, 1, 5)
 
 
-def ImagemCloudWord(APP, COMMENTS):
+def image_cloud_word(app, comments):
     """Essa função remove todas as stopword de todos os comentários. Após isso, ela quantifica
     quantas vezes cada keys-words aparece e imprime as mais frequêntes. Quanto mais frequênte
     a keyword, mais centralizado e maior na imagem ela aparece."""
     # caminho da imagem
-    app_id = APP['id']
+    app_id = app['id']
     cloud_path = 'images/cloud_' + app_id + '.png'
-    APP['cloud_path'] = cloud_path
+    app['cloud_path'] = cloud_path
 
-    colorful_words = GroupingWordSameFeeling(COMMENTS)
-    summary = get_comments(COMMENTS)
-    summary = ClearComments(summary)
+    colorful_words = grouping_word_same_feeling(comments)
+    summary = list(get_comments(comments))
+    summary = clear_comments(summary)
     all_summary = " ".join(s for s in summary)
 
     wordcloud = WordCloud(collocations=False, contour_color="black",
@@ -137,41 +118,16 @@ def ImagemCloudWord(APP, COMMENTS):
     ax.imshow(wordcloud, interpolation='bilinear')
     ax.set_axis_off()
     plt.imshow(wordcloud)
-    wordcloud.to_file(cloud_path)
+    wordcloud.to_file('app/static/' + cloud_path)
 
-'''
-def ImagemCloudWordCustommer(imgimport, imgexport):
-    """Variação da função ImagemCloudWord. Nessa função podemos especificar o formato da nuvem
-    por meio de uma imagem em preto e branco. A parte em preto é a área ocupada pela nuvem e
-    a parte em branco é a área que não deve ser sobreposta pelas keywords"""
-    colorful_words = GroupingWordSameFeeling()
-    summary = None #comentarios
-    summary = ClearComments(summary)
-    all_summary = " ".join(s for s in summary)
-    img = np.array(Image.open(imgimport))
-    wordcloud = WordCloud(collocations=False, contour_color="black",
-                          background_color="#e1e1e100", mode='RGBA',
-                          width=1000, height=1000, max_words=2000,
-                          mask=img, max_font_size=200,
-                          min_font_size=1).generate(all_summary)
-    # Se aparecer alguma palavra amarelka é porque deu pau no agrupamento de palavras de mesmo sentimento
-    default_color = 'yellow'
-    grouped_color_func = GroupedColorFunc(colorful_words, default_color)
-    wordcloud.recolor(color_func=grouped_color_func)
-    fig, ax = plt.subplots(figsize=(10, 10))
-    ax.imshow(wordcloud, interpolation='bilinear')
-    ax.set_axis_off()
-    plt.imshow(wordcloud)
-    wordcloud.to_file(imgexport)
-'''
 
-def GroupingWordSameFeeling(COMMENTS):
+def grouping_word_same_feeling(comments):
     """Remove as stopword e caracteres especiais. Em seguida, tokeniza todas as palavras existentes
     nos comentários e analisa o sentimento atribuido a ela. As palavras com o mesmo sentimento são
     agrupadas juntas no dicionário. 'red'-> Negativas, 'grey'->Neutras, 'green'->Positivas"""
     sid = SentimentIntensityAnalyzer()
-    comments = get_comments(COMMENTS)
-    comments = ClearComments(comments)
+    comments = list(get_comments(comments))
+    comments = clear_comments(comments)
     word_tokens = []
     for i in comments:
         word_tokens.extend(word_tokenize(i))
@@ -187,23 +143,27 @@ def GroupingWordSameFeeling(COMMENTS):
     return color_words
 
 
-def Mean(lista):
+def mean(lista):
     aux = sum(lista)
     aux = aux / len(lista)
     return aux
 
 
-def RealStars(n, start1, stop1, start2, stop2):
+def real_stars(n, start1, stop1, start2, stop2):
     return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2
 
-
-def get_comments(COMMENTS):
+'''
+def get_comments(comments_list):
     comments = []
-    for comm in COMMENTS:
+    for comm in comments_list:
         comments.append(comm['comments'])
     return comments
+'''
+def get_comments(comments):
+    for comm in comments:
+        yield comm['comments']
 
 
-def analysis(APP, COMMENTS):
-    GeneratorAnalysis(APP, COMMENTS)
-    ImagemCloudWord(APP, COMMENTS)
+def analysis(app, comments):
+    generator_analysis(app, comments)
+    image_cloud_word(app, comments)
