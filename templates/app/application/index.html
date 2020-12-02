@@ -21,13 +21,19 @@
         <div class="word-cloud"><img src="{% static app.cloud_path %}" alt="{{app.name}} word cloud"></div>
 
         <div class="app-details">
-            Tabela de detalhes
+            <table class="content-table">
+                <tr>
+                    <th>Likes</th>
+                    <th>Comentário</th>
+                </tr>
+                {% for comment in comments %}
+                <tr>
+                    <th>{{comment.likes}}</th>
+                    <th>{{comment.comments}}</th>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
     </main>
-
-    {% include "footer.html" %}
-
-    {% block footer %}
-    {% endblock footer%}
 </div>
 {% endblock content %}

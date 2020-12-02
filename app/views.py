@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from database import read_all_apps, read_app
+from database import read_all_apps, read_app, read_top
 
 def home_view(request):
     context = { 
@@ -9,7 +9,11 @@ def home_view(request):
 
 
 def application_detail_view(request, app_id):
+    app = read_app(app_id)
+    comments = read_top(app_id)
     context = {
-        'app': read_app(app_id)
+        'app': app,
+        'comments': comments
     }
     return render(request, "app/application/index.html", context)
+

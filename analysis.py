@@ -101,14 +101,12 @@ def image_cloud_word(app, comments):
     cloud_path = 'images/cloud_' + app_id + '.png'
     app['cloud_path'] = cloud_path
 
-    colorful_words = grouping_word_same_feeling(comments)
-    summary = list(get_comments(comments))
-    summary = clear_comments(summary)
-    all_summary = " ".join(s for s in summary)
+    colorful_words, word_list = grouping_word_same_feeling(comments)
+
 
     wordcloud = WordCloud(collocations=False, contour_color="black",
                           background_color="#e1e1e100", mode='RGBA',
-                          width=1600, height=800).generate(all_summary)
+                          width=1600, height=800).generate(word_list)
 
     # Se aparecer alguma palavra amarelka é porque deu pau no agrupamento de palavras de mesmo sentimento
     default_color = 'yellow'
@@ -128,6 +126,7 @@ def grouping_word_same_feeling(comments):
     sid = SentimentIntensityAnalyzer()
     comments = list(get_comments(comments))
     comments = clear_comments(comments)
+    word_list = ""
     word_tokens = []
     for i in comments:
         word_tokens.extend(word_tokenize(i))
@@ -135,12 +134,14 @@ def grouping_word_same_feeling(comments):
     for i in word_tokens:
         aux = sid.polarity_scores(i)
         if 0.05 >= aux['compound'] >= -0.05:
-            color_words['grey'].append(i)
+            pass
         elif aux['compound'] > 0.05:
             color_words['green'].append(i)
+            word_list += " "+i
         else:
             color_words['red'].append(i)
-    return color_words
+            word_list += " "+i
+    return color_words, word_list
 
 
 def mean(lista):

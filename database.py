@@ -38,3 +38,9 @@ def read_app(app_id):
 # busca os comentarios de uma aplicacao expecifica
 def read_comments(app_id):
     return COMMENTS.find({'app': app_id})
+
+# busca os 5 commentarios com maior numero de likes
+def read_top(app_id):
+    comments = list(COMMENTS.find({'app': app_id}).sort("likes",-1))
+    comments = comments[:5]
+    return comments
