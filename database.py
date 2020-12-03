@@ -5,7 +5,7 @@ from pymongo import MongoClient
 # estabelecendo conexao
 client = MongoClient()
 # selecionando o banco de dados
-DB = client.test
+DB = client.GOOGLE_PLAY
 # selecionando as colecoes
 APPLICATIONS = DB.applications
 COMMENTS = DB.comments
@@ -45,3 +45,8 @@ def read_top(app_id):
     comments = list(COMMENTS.find({'app': app_id}).sort("likes", -1))
     comments = comments[:5]
     return comments
+
+
+# busca numero de comentarios da aplicacao
+def count_comments(app_id):
+    return COMMENTS.count_documents({'app': app_id})

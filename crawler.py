@@ -65,9 +65,9 @@ def get_comments(URL):
     # Tamanho do scroll
     last_height = driver.execute_script("return document.body.scrollHeight")
     
-    # Tempo de scroll, 10 min
+    # Tempo de scroll, 10 seg
     current_milli_time = lambda: int(round(time.time() * 1000))
-    time_to_crawl = current_milli_time() + 600000
+    time_to_crawl = current_milli_time() + 10000
 
     while True:
         # Scroll até o fim da página
@@ -93,9 +93,12 @@ def get_comments(URL):
                 break
         last_height = new_height
 
-    comment_page = driver.execute_script("return document.documentElement.outerHTML")
-    
-    driver.quit()
+    try:
+        comment_page = driver.execute_script("return document.documentElement.outerHTML")
+    except Exception as e:
+        raise e
+    finally:
+        driver.quit()
     
     soup = BeautifulSoup(comment_page, 'html.parser')
     

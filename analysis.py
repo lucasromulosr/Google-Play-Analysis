@@ -153,13 +153,7 @@ def mean(lista):
 def real_stars(n, start1, stop1, start2, stop2):
     return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2
 
-'''
-def get_comments(comments_list):
-    comments = []
-    for comm in comments_list:
-        comments.append(comm['comments'])
-    return comments
-'''
+
 def get_comments(comments):
     for comm in comments:
         yield comm['comments']
