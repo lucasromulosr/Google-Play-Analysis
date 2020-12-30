@@ -1,4 +1,7 @@
-# Google-Play-Analysis
+# Google Play Analysis
+
+Google Play Analysis é uma aplicação web que extrai informações de aplicativos da Google Play
+e realiza uma avaliação do aplicativo baseada nos comentários dos usuários.
 
 A ideia do projeto é coletar algumas informações de aplicativos da loja Google Play e aplicar um processo de [análise de sentimento e modelagem de tópicos](https://dl.acm.org/doi/10.1145/3178876.3186168).
 
