@@ -2,7 +2,7 @@
 
 Google Play Analysis é uma aplicação web que extrai informações de aplicativos da Google Play
 e realiza uma avaliação do aplicativo baseada nos comentários dos usuários.
-As informações extraidas são extraídas, passam por um processo de análise de sentimento utilizando o Vader,
+As informações extraidas, passam por um processo de análise de sentimento utilizando o Vader,
  e então são adicionadas num banco de dados noSQL, o MongoDB.
 
 
@@ -16,8 +16,22 @@ As informações extraidas são extraídas, passam por um processo de análise d
 ### Dependências
 - Django
 - Pymongo
+- bs4
+- selenium
+- nltk
+- matplotlib
+- wordcloud
 
+>Executar os comandos no Python shell:  
+>import nltk  
+>nltk.download('vader_lexicon')  
+>nltk.download('punkt')
 
+O projeto já possui uma versão Linux e Windows do GeckoDriver, basta selecionar em crawler.py.  
+Caso queira fazer o donwload da sua versão preferida do [GeckoDriver](https://github.com/mozilla/geckodriver/releases),
+modifique o caminho em crawler.py.
+
+## Coleta de informações
 
 
 
