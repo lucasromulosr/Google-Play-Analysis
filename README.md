@@ -27,7 +27,12 @@ As informações extraidas, passam por um processo de análise de sentimento uti
 >nltk.download('vader_lexicon')  
 >nltk.download('punkt')
 
-O projeto já possui uma versão Linux e Windows do GeckoDriver, basta selecionar em crawler.py.  
+O projeto já possui uma versão Linux e Windows do GeckoDriver, basta selecionar em [crawler.py](/crawler.py):
+```
+# selecionar geckodriver compativel com o sistema
+# driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_win.exe'))
+driver = webdriver.Firefox(executable_path=os.path.join(BASE_DIR, 'geckodriver/geckodriver_linux'))
+```
 Caso queira fazer o donwload da sua versão preferida do [GeckoDriver](https://github.com/mozilla/geckodriver/releases),
 modifique o caminho em crawler.py.
 
