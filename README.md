@@ -36,7 +36,8 @@ nltk.download('punkt')
 exit()
 ```
 
-Será utilizado tbm o GeckoDriver, por isso o projeto já possui uma versão Linux e Windows, basta selecionar em [crawler.py](/crawler.py):
+Será utilizado também o GeckoDriver, por isso a aplicação já conta com uma versão Linux e uma Windows, 
+basta selecionar em [crawler.py](/crawler.py):
 ```
 # selecionar geckodriver compativel com o sistema
 # driver = webdriver.Firefox(executable_path = os.path.join(BASE_DIR, 'geckodriver/geckodriver_win.exe'))
