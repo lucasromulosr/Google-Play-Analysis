@@ -2,7 +2,7 @@
 
 Google Play Analysis é uma aplicação web que extrai informações de aplicativos da Google Play
 e realiza uma avaliação do aplicativo baseada nos comentários dos usuários.
-As informações extraidas, passam por um processo de análise de sentimento utilizando o Vader,
+As informações extraídas, passam por um processo de análise de sentimento utilizando o Vader,
  e então são adicionadas num banco de dados noSQL, o MongoDB.  
 A aplicação também exibe os 5 comentários com o maior número de curtidas para que possamos ter 
 uma ideia dos comentários mais importantes.
@@ -94,8 +94,8 @@ python manage.py runserver
 ```
 Podemos então acessar a aplicação através do [link](http://127.0.0.1:8000/).
 
->P.S.: a aplicação só deve ser lançada quando já houver pelo menos um aplicativo no banco senão as wordclouds não carregam.
-> Após o lançamento da aplicação os aplicativos vão aparecer na lista de forma dinâmica assim que forem adicionados no banco.
+>P.S.: a aplicação só deve ser lançada quando já houver pelo menos um aplicativo no banco, senão as wordclouds não carregam.
+> Após o lançamento da aplicação, os aplicativos vão aparecer na lista de forma dinâmica assim que forem adicionados ao banco.
 
 ## etc etc
 A ideia do projeto é coletar algumas informações de aplicativos da loja Google Play e aplicar um processo de [análise de sentimento e modelagem de tópicos](https://dl.acm.org/doi/10.1145/3178876.3186168).
