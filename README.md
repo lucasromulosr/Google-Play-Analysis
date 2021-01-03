@@ -72,10 +72,28 @@ no site Google Play. As informações coletadas são:
   
 ### Análise dos comentários
 
+Após a coleta, os comentários passam por um processo de analíse de sentimento, utilizando o Vader.
+Cada comentário recebe 4 valores, relacionados a análise feita, que são positivo, neutro, negativo e compound.
+Positivo, neutro e negativo são as porcentagens relativas a cada um, os 3 valores somados resultam em 1 (100%).
+O compoud é um valor baseado nesses 3, que nos dá uma "média" do sentimento do texto, esse valor vai de -1 a 1.  
+No final, os valores compound são somados e divididos pelo número de comentários, tendo-se assim a média do sentimento
+dos comentários de um aplicativo específico. Cria-se então uma worldcloud com as palavras (positivas e negativas)
+mais utilizadas nos comentários.
 
-
+> As worldclouds não são salvas no banco. Salva-se apenas o caminho de acesso no disco físico.
 
 ### Adição no banco de dados
+
+Para a adição e recuperação das informações no banco, é utilizado o wrapper [Pymongo](https://pymongo.readthedocs.io/en/stable/).
+As informações são salvas em documentos no formato BSON (Binary JSON).  
+Além do que já foi coletado anteriormente, agora temos mais alguns componentes:
+
+- Aplicativos: 
+  - média obtida na avaliação de sentimento
+  - caminho da worldcloud
+- Comentários:
+  - compound
+  - sentimento final (positivo/neutro/negativo)  
 
 
 ## Execução do processamento de informações
@@ -85,6 +103,7 @@ Para fazer o processamento dos dados, executamos [program](/progrma.py) passando
 cd pasta/da/aplicacao
 python program.py https://play.google.com/store/apps/details?id=com.github.android URL2 URL3 URL...
 ```
+
 
 ## Lançar aplicação
 
@@ -96,20 +115,3 @@ Podemos então acessar a aplicação através do [link](http://127.0.0.1:8000/).
 
 >P.S.: a aplicação só deve ser lançada quando já houver pelo menos um aplicativo no banco, senão as wordclouds não carregam.
 > Após o lançamento da aplicação, os aplicativos vão aparecer na lista de forma dinâmica assim que forem adicionados ao banco.
-
-## etc etc
-A ideia do projeto é coletar algumas informações de aplicativos da loja Google Play e aplicar um processo de [análise de sentimento e modelagem de tópicos](https://dl.acm.org/doi/10.1145/3178876.3186168).
-
-## Coletando as Informações
-Certifique-se que o seu navegador é suportado pelo [selenium](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/). Caso sua versão seja compatível, ainda será necessário fazer o download do geckodriver, disponível em:
-  - [Firefox](https://github.com/mozilla/geckodriver/releases)
-  - [Chrome](https://sites.google.com/a/chromium.org/chromedriver/downloads)
-
-O local de instalação do driver é "./geckodriver/".
-
-Para executar o crawler basta estar no diretório e especificar a url do aplicativo:
-```
-python crawler.py https://play.google.com/store/apps/details?id=com.github.android
-```
-As informações serão inicialmente disponibilizadas em dois arquivos .json, um para o aplicativo e outro para seus comentários.
- 
