@@ -4,10 +4,15 @@ Google Play Analysis é uma aplicação web que extrai informações de aplicati
 e realiza uma avaliação do aplicativo baseada nos comentários dos usuários.
 As informações extraídas, passam por um processo de análise de sentimento utilizando o Vader,
  e então são adicionadas num banco de dados noSQL, o MongoDB.  
-A aplicação também exibe os 5 comentários com o maior número de curtidas para que possamos ter 
+A aplicação apresenta alguns dados coletados: nome, categoria, número de avaliações, estrelas, número de comentários analisados; 
+a avaliação (estimativa) com base nos comentários, que é apresentada num valor convertido pra estrelas (1 a 5);
+e os 5 comentários com o maior número de curtidas, para que possamos ter 
 uma ideia dos comentários mais importantes.
 
 > P.S.: A aplicação só extrai informações da página em inglês.
+
+### Exemplo
+![example](https://user-images.githubusercontent.com/50027499/103485828-eb8b1480-4dd7-11eb-9de2-857f9295f851.png)
 
 
 ## Tecnologias
